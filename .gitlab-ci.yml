@@ -1,0 +1,16 @@
+image: node:latest
+
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - mkdir -p ~/.ssh
+  - eval $(ssh-agent -s)
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+stage_deploy:
+  only:
+    - main
+  script:
+    - ssh-add <(echo "$PRODUCTION_PRIVATE_KEY")
+    - ssh -p22 root@xxx.xxx.xxx.xxx "cd /home/salesmanago && git pull && npm i && tsc && pm2 restart salesmanago"
+
+# Example script for Gitlab CI
